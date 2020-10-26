@@ -24,7 +24,7 @@ stages:
     - task: CopyFiles@2
       inputs:
         SourceFolder: '$(System.DefaultWorkingDirectory)'
-        Contents: '**/target/*.war'
+        Contents: '**/target/*.?(war|jar)'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     - upload: $(Build.ArtifactStagingDirectory)
@@ -48,4 +48,4 @@ stages:
         azureSubscription: 'SP'
         appType: 'webAppLinux'
         appName: 'tomtom23423'
-        package: '$(Pipeline.Workspace)/drop/**/target/*.war'
+        package: '$(Pipeline.Workspace)/drop/**/target/*.?(war|jar)'
