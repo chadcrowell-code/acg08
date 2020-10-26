@@ -6,20 +6,46 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: MavenPackageAndPublishArtifacts
+    displayName: Maven Package and Publish Artifacts
+    pool:
+      vmImage: 'ubuntu-latest'
 
-steps:
-- task: Maven@3
-  displayName: 'Maven Package'
-  inputs:
-    mavenPomFile: 'pom.xml'
+    steps:
+    - task: Maven@3
+      displayName: 'Maven Package'
+      inputs:
+        mavenPomFile: 'pom.xml'
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(System.DefaultWorkingDirectory)'
-    Contents: '**/target/*.war'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: '**/target/*.war'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-- upload: $(Build.ArtifactStagingDirectory)
-  artifact: drop
+    - upload: $(Build.ArtifactStagingDirectory)
+      artifact: drop
+
+- stage: Deploy
+  displayName: Deploy
+  jobs:
+  - job: DeploytoAzure
+    displayName: Deploy to WebApp
+    pool:
+      vmImage: 'ubuntu-latest'
+    
+    steps:
+    - checkout: none
+    
+    - download: current
+      artifact: drop
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'SP'
+        appType: 'webAppLinux'
+        appName: 'tomtom23423'
+        package: '$(Pipeline.Workspace)/drop/**/target/*.war'
