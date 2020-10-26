@@ -18,7 +18,7 @@ steps:
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(System.DefaultWorkingDirectory)'
-    Contents: '**'
+    Contents: '**/target/*.war'
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - upload: $(Build.ArtifactStagingDirectory)
